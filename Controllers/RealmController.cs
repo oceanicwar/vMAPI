@@ -6,6 +6,8 @@ using vMAPI.Controllers.Models;
 using vMAPI.Controllers.Models.Characters;
 using vMAPI.Controllers.Models.Realm;
 using vMAPI.Database;
+using vMAPI.Database.Models.Realm;
+using vMAPI.Extensions;
 
 namespace vMAPI.Controllers.Realm;
 
@@ -27,8 +29,9 @@ public class RealmController : Controller
     public async Task<IActionResult> ListRealmsAsync()
     {
         var realms = await realmDbContext.Realms.ToListAsync();
+        var filteredRealms = realms.Where(r => !(BitExtensions.HasFlag(r.RealmFlags, (int)RealmFlags.Invalid)));
 
-        return Json(realms.Select(r => new RealmlistDTO()
+        return Json(filteredRealms.Select(r => new RealmlistDTO()
         {
             Id = r.Id,
             Name = r.Name,
@@ -47,6 +50,7 @@ public class RealmController : Controller
         }
 
         var realm = await realmDbContext.Realms.FirstOrDefaultAsync(r => r.Id == id);
+
         if(realm is null)
         {
             return BadRequest(new BasicApiResult(false, "No realm found with that id."));
