@@ -27,22 +27,7 @@ public class Program
             db.UseMySql(mySqlConn, mySqlVersion);
         });
 
-        builder.Services.AddDbContext<MangosCharactersDbContext>(db =>
-        {
-            string? mySqlConn = builder.Configuration.GetConnectionString("MySqlCharacters");
-            if (string.IsNullOrEmpty(mySqlConn))
-            {
-                throw new NullReferenceException("MySql Connection String was null or empty.");
-            }
-
-            ServerVersion? mySqlVersion = ServerVersion.AutoDetect(mySqlConn);
-            if (mySqlVersion is null)
-            {
-                throw new NullReferenceException("Failed to auto-detect MySql version.");
-            }
-
-            db.UseMySql(mySqlConn, mySqlVersion);
-        });
+        builder.Services.AddTransient<MangosDbFactory>();
 
         builder.Services.AddControllers();
 

@@ -1,6 +1,6 @@
-﻿namespace vMAPI.Controllers.Realm.Models;
+﻿namespace vMAPI.Controllers.Models.Realm;
 
-public class GetRealmsDTO
+public class RealmlistDTO
 {
     public int Id { get; set; }
     public string? Name { get; set; }
