@@ -8,6 +8,7 @@ using vMAPI.Controllers.Models.Realm;
 using vMAPI.Database;
 using vMAPI.Database.Models.Realm;
 using vMAPI.Extensions;
+using vMAPI.Network;
 
 namespace vMAPI.Controllers.Realm;
 
@@ -42,7 +43,7 @@ public class RealmController : Controller
 
     [AllowAnonymous]
     [HttpGet("{id}")]
-    [ResponseCache(Duration = 120)]
+    [ResponseCache(Duration = 60)]
     public async Task<IActionResult> ListOnlinePlayersAsync(int? id)
     {
         if(id is null)
@@ -56,7 +57,12 @@ public class RealmController : Controller
             return BadRequest(new BasicApiResult<object>(false, "No realm found with that id."));
         }
 
-        var isOnline = await realm.TestConnectionAsync();
+        if (string.IsNullOrWhiteSpace(realm.Address))
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new BasicApiResult<object>(false, "An internal error occured."));
+        }
+
+        var isOnline = await NetworkUtilities.TestConnectionAsync(realm.Address, realm.Port);
         if(!isOnline)
         {
             return Ok(new BasicApiResult<object>(false, "Realm is offline."));
@@ -65,7 +71,7 @@ public class RealmController : Controller
         var charDbContext = dbFactory.CreateCharactersDbContext(id.Value);
         if(charDbContext is null)
         {
-            return StatusCode(500, new BasicApiResult<object>(false, "An internal error occured."));
+            return StatusCode(StatusCodes.Status500InternalServerError, new BasicApiResult<object>(false, "An internal error occured."));
         }
 
         var characters = await charDbContext.Characters.Where(c => c.Online).Select(c => new CharacterDTO()
