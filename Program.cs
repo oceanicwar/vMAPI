@@ -10,23 +10,10 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddDbContext<MangosRealmDbContext>(db =>
-        {
-            string? mySqlConn = builder.Configuration.GetConnectionString("MySqlRealm");
-            if (string.IsNullOrEmpty(mySqlConn))
-            {
-                throw new NullReferenceException("MySql Connection String was null or empty.");
-            }
+        builder.Logging.ClearProviders();
+        builder.Logging.AddConsole();
 
-            ServerVersion? mySqlVersion = ServerVersion.AutoDetect(mySqlConn);
-            if (mySqlVersion is null)
-            {
-                throw new NullReferenceException("Failed to auto-detect MySql version.");
-            }
-
-            db.UseMySql(mySqlConn, mySqlVersion);
-        });
-
+        builder.Services.AddDbContext<MangosRealmDbContext>();
         builder.Services.AddTransient<MangosDbFactory>();
 
         builder.Services.AddControllers();

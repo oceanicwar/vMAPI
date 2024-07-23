@@ -5,17 +5,20 @@ namespace vMAPI.Database;
 public class MangosDbFactory
 {
     private readonly IConfiguration config;
+    private readonly ILogger<MangosDbFactory> logger;
 
-    public MangosDbFactory(IConfiguration config)
+    public MangosDbFactory(IConfiguration config, ILogger<MangosDbFactory> logger)
     {
         this.config = config;
+        this.logger = logger;
     }
 
     public MangosCharactersDbContext? CreateCharactersDbContext(int realmId)
     {
         var connectionString = config[$"Realms:{realmId}:ConnectionStrings:MySqlCharacters"];
-        if(connectionString is null)
+        if(string.IsNullOrWhiteSpace(connectionString))
         {
+            logger.LogCritical("Connection String for MysqlCharacters was null or empty, check appsettings.json to ensure the configuration is correct.");
             return null;
         }
 
