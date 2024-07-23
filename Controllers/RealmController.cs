@@ -29,15 +29,15 @@ public class RealmController : Controller
     public async Task<IActionResult> ListRealmsAsync()
     {
         var realms = await realmDbContext.Realms.ToListAsync();
-        var filteredRealms = realms.Where(r => !(BitExtensions.HasFlag(r.RealmFlags, (int)RealmFlags.Invalid)));
-
-        return Json(filteredRealms.Select(r => new RealmlistDTO()
+        var filteredRealms = realms.Where(r => !(BitExtensions.HasFlag(r.RealmFlags, (int)RealmFlags.Invalid))).Select(r => new RealmlistDTO()
         {
             Id = r.Id,
             Name = r.Name,
             Address = r.Address,
             Port = r.Port
-        }));
+        }).ToList();
+
+        return Ok(new BasicApiResult<List<RealmlistDTO>>(true, $"Found '{filteredRealms.Count}' realm(s).", filteredRealms));
     }
 
     [AllowAnonymous]
@@ -46,28 +46,32 @@ public class RealmController : Controller
     {
         if(id is null)
         {
-            return BadRequest(new BasicApiResult(false, "You must supply a realm id."));
+            return BadRequest(new BasicApiResult<object>(false, "You must supply a realm id."));
         }
 
         var realm = await realmDbContext.Realms.FirstOrDefaultAsync(r => r.Id == id);
 
         if(realm is null)
         {
-            return BadRequest(new BasicApiResult(false, "No realm found with that id."));
+            return BadRequest(new BasicApiResult<object>(false, "No realm found with that id."));
         }
 
         var charDbContext = dbFactory.CreateCharactersDbContext(id.Value);
         if(charDbContext is null)
         {
-            return StatusCode(500, new BasicApiResult(false, "An internal error occured."));
+            return StatusCode(500, new BasicApiResult<object>(false, "An internal error occured."));
         }
 
-        var characters = await charDbContext.Characters.Where(c => c.Online).ToListAsync();
-
-        return Json(characters.Select(c => new CharacterDTO()
+        var characters = await charDbContext.Characters.Where(c => c.Online).Select(c => new CharacterDTO()
         {
             Name = c.Name,
-            Level = c.Level
-        }));
+            Level = c.Level,
+            Class = c.Class,
+            Gender = c.Gender,
+            Race = c.Race
+            
+        }).ToListAsync();
+
+        return Ok(new BasicApiResult<List<CharacterDTO>>(true, $"Found '{characters.Count}' online characters.", characters));
     }
 }
