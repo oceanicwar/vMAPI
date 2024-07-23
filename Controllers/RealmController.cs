@@ -42,6 +42,7 @@ public class RealmController : Controller
 
     [AllowAnonymous]
     [HttpGet("{id}")]
+    [ResponseCache(Duration = 120)]
     public async Task<IActionResult> ListOnlinePlayersAsync(int? id)
     {
         if(id is null)
@@ -50,10 +51,15 @@ public class RealmController : Controller
         }
 
         var realm = await realmDbContext.Realms.FirstOrDefaultAsync(r => r.Id == id);
-
         if(realm is null)
         {
             return BadRequest(new BasicApiResult<object>(false, "No realm found with that id."));
+        }
+
+        var isOnline = await realm.TestConnectionAsync();
+        if(!isOnline)
+        {
+            return Ok(new BasicApiResult<object>(false, "Realm is offline."));
         }
 
         var charDbContext = dbFactory.CreateCharactersDbContext(id.Value);

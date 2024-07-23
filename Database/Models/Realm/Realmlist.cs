@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Net.Sockets;
 
 namespace vMAPI.Database.Models.Realm;
 
@@ -51,4 +53,28 @@ public class Realmlist
 
     [Column("realmbuilds")]
     public string? RealmBuilds { get; set; }
+
+    public async Task<bool> TestConnectionAsync()
+    {
+        if(string.IsNullOrWhiteSpace(this.Address))
+        {
+            return false;
+        }
+
+        var tcpClient = new TcpClient();
+        try
+        {
+            await tcpClient.ConnectAsync(this.Address, this.Port);
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+        finally
+        {
+            tcpClient.Close();
+        }
+    }
 }

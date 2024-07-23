@@ -31,12 +31,14 @@ public class Program
 
         builder.Services.AddControllers();
 
+        builder.Services.AddResponseCaching();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
 
         app.UseAuthorization();
-
+        app.UseResponseCaching();
 
         app.MapControllers();
 
