@@ -27,6 +27,7 @@ public class RealmController : Controller
 
     [AllowAnonymous]
     [HttpGet("list")]
+    [ResponseCache(Duration = 360)]
     public async Task<IActionResult> ListRealmsAsync()
     {
         var realms = await realmDbContext.Realms.ToListAsync();
