@@ -9,6 +9,7 @@ using vMAPI.Database;
 using vMAPI.Database.Models.Realm;
 using vMAPI.Extensions;
 using vMAPI.Network;
+using vMAPI.Tools;
 
 namespace vMAPI.Controllers.Realm;
 
@@ -81,8 +82,9 @@ public class RealmController : Controller
             Level = c.Level,
             Class = c.Class,
             Gender = c.Gender,
-            Race = c.Race
-            
+            Race = c.Race,
+            Map = vMangosTools.GetMapName(c.Map),
+            Zone = vMangosTools.GetZoneName(c.Zone)
         }).ToListAsync();
 
         return Ok(new BasicApiResult<List<CharacterDTO>>(true, $"Found '{characters.Count}' online characters.", characters));

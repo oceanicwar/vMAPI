@@ -12,4 +12,7 @@ public class CharacterDTO
     public PlayerRace Race { get; set; }
     public PlayerClass Class { get; set; }
     public PlayerGender Gender { get; set; }
+
+    public string? Map { get; set; }
+    public string? Zone { get; set; }
 }

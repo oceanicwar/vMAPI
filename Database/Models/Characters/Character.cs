@@ -28,4 +28,10 @@ public class Character
 
     [Column("gender")]
     public PlayerGender Gender { get; set; }
+
+    [Column("map")]
+    public int Map { get; set; }
+
+    [Column("zone")]
+    public int Zone { get; set; }
 }
